@@ -7,6 +7,7 @@
 #   scripts/dev.sh check        – Tests + Prüfung beider Backends (Windows und Linux) inkl. Clippy
 #   scripts/dev.sh run          – Windows-Debug-Build, nach C:\Users\<du>\EveMultibox kopieren und starten
 #   scripts/dev.sh release      – Windows-Release: dist/eve-multibox-<version>-windows-x64.zip + C:\Users\<du>\EveMultibox
+#   scripts/dev.sh windows      – nur Windows-ZIP nach dist/ (ohne Kopie nach C:, z. B. für GitHub Actions)
 #   scripts/dev.sh linux        – Linux-Release-Paket nach dist/eve-multibox-<version>-linux-x86_64.tar.gz
 #   scripts/dev.sh demo-linux   – Linux-Version mit simulierten EVE-Clients starten (WSLg oder Linux-Desktop)
 set -euo pipefail
@@ -155,6 +156,10 @@ case "${1:-}" in
         ;;
     release)
         build_and_copy release
+        "$0" windows
+        ;;
+    windows)
+        cargo build --release --target "$WIN_TARGET"
         mkdir -p dist
         cp "target/$WIN_TARGET/release/$EXE" dist/
         # Release-ZIP mit .exe und Kurzanleitung (Windows-Zeilenenden); python3 statt „zip“, das in WSL oft fehlt.
@@ -189,7 +194,7 @@ PY
         "target/$LINUX_TARGET/debug/eve-multibox"
         ;;
     *)
-        sed -n '2,12p' "$0"
+        sed -n '2,13p' "$0"
         exit 1
         ;;
 esac

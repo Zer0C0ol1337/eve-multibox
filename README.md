@@ -112,6 +112,14 @@ Daneben liegt `eve-multibox.log` (Startprotokoll, Absturzdetails).
 
 **Neue Sprache hinzufügen:** in `src/i18n.rs` eine Spalte ergänzen – `cargo t` meldet jeden fehlenden Text.
 
+## Release veröffentlichen
+
+1. Version in `Cargo.toml` erhöhen, `CHANGELOG.md` und diese README anpassen, committen und pushen.
+2. Auf GitHub **Releases → Draft a new release**, Tag `vX.Y.Z` (gleich der Version in `Cargo.toml`) neu anlegen,
+   Text einfügen, **Publish release**.
+3. GitHub Actions (`.github/workflows/release.yml`) baut Windows-ZIP und Linux-Paket und hängt sie nach einigen
+   Minuten an das Release. Passt der Tag nicht zur Version, bricht der Ablauf mit einer klaren Meldung ab.
+
 ## Projektaufbau
 
 ```

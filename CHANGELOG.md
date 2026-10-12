@@ -30,6 +30,8 @@ die Version steht einheitlich in `Cargo.toml`, im Git-Tag (`vX.Y.Z`), im Release
 - Plattform-Fassade (`platform.rs`) und gemeinsame Engine-Typen (`engine_api.rs`); Backend-Auswahl in `build.rs`.
 - `scripts/dev.sh`: neue Befehle `check`, `setup-linux`, `linux`, `demo-linux`.
 - Testwerkzeug `examples/fake_eve.rs` (simulierte EVE-Clients).
+- GitHub Actions baut beim Veröffentlichen eines Releases die Windows-ZIP und das Linux-Paket und hängt sie an;
+  vorher wird geprüft, dass der Tag zur Version in `Cargo.toml` passt.
 
 ## Frühere Versionen (0.1–0.3, nur Windows)
 

@@ -1,0 +1,103 @@
+# Baut beim Veröffentlichen eines GitHub-Releases automatisch beide Programme und hängt sie an:
+#   eve-multibox-<version>-windows-x64.zip     (Cross-Build mit MinGW, wie in WSL)
+#   eve-multibox-<version>-linux-x86_64.tar.gz (cargo-zigbuild gegen glibc 2.31)
+#
+# Ablauf: Releases → „Draft a new release“ → Tag vX.Y.Z (muss zur Version in Cargo.toml passen)
+# → „Publish release“. Nach einigen Minuten erscheinen die Dateien unter „Assets“.
+# Alternativ unter „Actions“ → „Release-Dateien bauen“ → „Run workflow“ mit dem Tag starten.
+
+name: Release-Dateien bauen
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag des Releases (z. B. v0.4.0)"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.release.tag_name || inputs.tag }}
+  CARGO_TERM_COLOR: always
+
+jobs:
+  # Prüft, dass Tag und Version in Cargo.toml übereinstimmen – alles auf einem Nenner.
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - name: Tag gegen Cargo.toml prüfen
+        run: |
+          version=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          if [ "v$version" != "$TAG" ]; then
+            echo "::error::Tag $TAG passt nicht zur Version $version in Cargo.toml"
+            exit 1
+          fi
+          echo "Version $version ✔"
+
+  # Unit-Tests (Bibliothek + Linux-Backend) vor dem Bauen.
+  check:
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Tests
+        run: |
+          cargo test --lib --target x86_64-unknown-linux-gnu
+          cargo test --bin eve-multibox --target x86_64-unknown-linux-gnu
+
+  windows:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-gnu
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows
+      - name: MinGW installieren
+        run: sudo apt-get update && sudo apt-get install -y mingw-w64
+      - name: Windows-ZIP bauen
+        run: scripts/dev.sh windows
+      - name: An das Release hängen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/eve-multibox-*-windows-x64.zip --clobber
+
+  linux:
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-gnu
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: linux
+      - name: zig + cargo-zigbuild installieren
+        run: |
+          python3 -m pip install --user --break-system-packages ziglang
+          cargo install --locked cargo-zigbuild
+      - name: Linux-Paket bauen
+        run: scripts/dev.sh linux
+      - name: An das Release hängen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" dist/eve-multibox-*-linux-x86_64.tar.gz --clobber
