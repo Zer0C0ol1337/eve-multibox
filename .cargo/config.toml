@@ -1,0 +1,16 @@
+# Standard-Ziel ist Windows: `cargo build` in WSL erzeugt direkt eine .exe.
+# Voraussetzung (einmalig in WSL):
+#   rustup target add x86_64-pc-windows-gnu
+#   sudo apt install mingw-w64
+[build]
+target = "x86_64-pc-windows-gnu"
+
+[target.x86_64-pc-windows-gnu]
+linker = "x86_64-w64-mingw32-gcc"
+
+# Kurzbefehle
+[alias]
+# Unit-Tests der plattformunabhängigen Logik (laufen nativ unter Linux/WSL)
+t = "test --lib --target x86_64-unknown-linux-gnu"
+# Schneller Typcheck ohne Windows-Linker
+ck = "check --target x86_64-unknown-linux-gnu"
