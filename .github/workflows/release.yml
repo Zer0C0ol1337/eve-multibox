@@ -1,6 +1,11 @@
 # Baut beim Veröffentlichen eines GitHub-Releases automatisch beide Programme und hängt sie an:
-#   eve-multibox-<version>-windows-x64.zip     (Cross-Build mit MinGW, wie in WSL)
+#   eve-multibox-<version>-windows-x64.zip     (unter Windows mit MSVC gebaut – seltener Fehlalarme
+#                                                als MinGW-Builds; signiert über SignPath, sobald eingerichtet)
 #   eve-multibox-<version>-linux-x86_64.tar.gz (cargo-zigbuild gegen glibc 2.31)
+#
+# Signieren (kostenlos für Open Source über die SignPath Foundation, siehe docs/SIGNING.md):
+#   Repository-Variable SIGNPATH_ORGANIZATION_ID + Secret SIGNPATH_API_TOKEN setzen – dann wird die .exe
+#   vor dem Verpacken signiert. Ohne diese Einstellungen wird unsigniert gebaut (wie bisher).
 #
 # Ablauf: Releases → „Draft a new release“ → Tag vX.Y.Z (muss zur Version in Cargo.toml passen)
 # → „Publish release“. Nach einigen Minuten erscheinen die Dateien unter „Assets“.
@@ -58,21 +63,56 @@ jobs:
 
   windows:
     needs: check
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      WIN_TARGET: x86_64-pc-windows-msvc
     steps:
       - uses: actions/checkout@v4
         with:
           ref: ${{ env.TAG }}
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: x86_64-pc-windows-gnu
+          targets: x86_64-pc-windows-msvc
       - uses: Swatinem/rust-cache@v2
         with:
-          key: windows
-      - name: MinGW installieren
-        run: sudo apt-get update && sudo apt-get install -y mingw-w64
-      - name: Windows-ZIP bauen
-        run: scripts/dev.sh windows
+          key: windows-msvc
+      - name: Windows-.exe bauen (MSVC)
+        run: |
+          cargo build --release --target "$WIN_TARGET"
+          mkdir -p dist
+          cp "target/$WIN_TARGET/release/eve-multibox.exe" dist/
+
+      # --- Signieren über SignPath (nur wenn eingerichtet) ---
+      - name: Unsignierte .exe für SignPath bereitstellen
+        id: unsigned
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: eve-multibox-unsigned
+          path: dist/eve-multibox.exe
+          if-no-files-found: error
+      - name: Signieren lassen (SignPath)
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'eve-multibox' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIG_SLUG || 'initial' }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: dist/signed
+      - name: Signierte .exe übernehmen
+        if: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+        run: cp dist/signed/eve-multibox.exe dist/eve-multibox.exe
+
+      - name: Windows-ZIP verpacken
+        run: bash scripts/dev.sh package-windows
       - name: An das Release hängen
         env:
           GH_TOKEN: ${{ github.token }}

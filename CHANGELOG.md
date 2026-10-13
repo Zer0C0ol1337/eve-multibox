@@ -3,6 +3,21 @@
 All notable changes to EVE Multibox. Version numbers follow [SemVer](https://semver.org/);
 the version is kept identical in `Cargo.toml`, the Git tag (`vX.Y.Z`), the GitHub release and the in-app display.
 
+## [0.4.1] – 2026-10-13
+
+### Changed
+- The Windows release is now built on Windows with the Microsoft compiler (MSVC) instead of MinGW – such builds tend to be
+  flagged less often by antivirus heuristics. Icon and version info are embedded as before.
+- Release workflow prepared for free code signing via the SignPath Foundation; it signs the `.exe` automatically as
+  soon as signing is configured (see `docs/SIGNING.md`).
+
+### Added
+- README: uninstall instructions, code signing policy and privacy statement (English and German).
+
+### Internal
+- `scripts/dev.sh`: new command `package-windows`; Windows target and Python interpreter are configurable.
+- `build.rs`: resources for the MSVC target via `embed-resource`.
+
 ## [0.4.0] – 2026-10-13
 
 ### Added

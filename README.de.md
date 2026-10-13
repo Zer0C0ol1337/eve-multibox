@@ -5,7 +5,7 @@
 Kostenloses Multibox-Werkzeug für EVE Online unter **Windows 11 und Linux** – in Rust, ohne Input-Broadcasting.
 Ein Quellcode, zwei Programme: `eve-multibox.exe` (Windows) und `eve-multibox` (Linux, X11/XWayland).
 
-**Version 0.4.0** · [Download (Releases)](https://github.com/Zer0C0ol1337/eve-multibox/releases/latest) ·
+**Version 0.4.1** · [Download (Releases)](https://github.com/Zer0C0ol1337/eve-multibox/releases/latest) ·
 [Changelog](CHANGELOG.md) · MIT-Lizenz
 
 © 2026 LeggaSchnegge · Fragen oder etwas Seltsames? → @[3THEL] LeggaSchnegge
@@ -16,13 +16,14 @@ Ein Quellcode, zwei Programme: `eve-multibox.exe` (Windows) und `eve-multibox` (
 
 | System | Datei | Start |
 |---|---|---|
-| **Windows 10/11** | `eve-multibox-0.4.0-windows-x64.zip` | entpacken, `eve-multibox.exe` starten |
-| **Linux** | `eve-multibox-0.4.0-linux-x86_64.tar.gz` | entpacken, `./eve-multibox --install`, dann übers Startmenü |
+| **Windows 10/11** | `eve-multibox-0.4.1-windows-x64.zip` | entpacken, `eve-multibox.exe` starten |
+| **Linux** | `eve-multibox-0.4.1-linux-x86_64.tar.gz` | entpacken, `./eve-multibox --install`, dann übers Startmenü |
 
 EVE muss im Fenstermodus laufen („Fenster“ oder „Fenster (fest)“). Einzelheiten zu Linux weiter unten.
 
-**Virenscanner:** Ein einzelner Scanner (SecureAge) meldete bei VirusTotal einen Fehlalarm (1/68) – typisch für
-neue, unsignierte Programme. Der komplette Quellcode liegt hier offen; wer mag, baut die `.exe` selbst.
+**Virenscanner:** Neue, unsignierte Programme werden gelegentlich von einzelnen Scannern gemeldet (Fehlalarm). Die
+Release-`.exe` baut GitHub Actions direkt aus diesem Quellcode mit dem Microsoft-Compiler; eine kostenlose
+Code-Signatur über die SignPath Foundation wird eingerichtet (siehe [Code-Signatur](#code-signatur)).
 
 ## Funktionen
 
@@ -46,7 +47,7 @@ GNOME – EVE läuft dort selbst als XWayland-Fenster). Funktionsumfang wie unte
 (XComposite), Hotkeys, Drosselung, Speicher-Werkzeuge, Dashboard, Tray, Autostart, alle Sprachen.
 
 ```bash
-tar xzf eve-multibox-0.4.0-linux-x86_64.tar.gz && cd eve-multibox-0.4.0-linux-x86_64
+tar xzf eve-multibox-0.4.1-linux-x86_64.tar.gz && cd eve-multibox-0.4.1-linux-x86_64
 ./eve-multibox --install                       # Startmenü-Eintrag + Icon (ohne sudo), --uninstall entfernt alles
 sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: Priorität erhöhen/zurücksetzen + Speicher auslagern
 ```
@@ -62,6 +63,16 @@ sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: Priorität erhöhen/z
 - Konfiguration: `~/.config/eve-multibox/config.json`, Protokoll daneben. Autostart: `~/.config/autostart/`.
 - Befehle: `--install`, `--uninstall`, `--minimized`, `--version`, `--help`.
 
+## Deinstallieren
+
+- **Windows:** in den Einstellungen „Mit Windows starten“ ausschalten (falls aktiv), Programm beenden, den Ordner mit
+  `eve-multibox.exe` und `%APPDATA%\EveMultibox` (Konfiguration und Protokoll) löschen.
+- **Linux:** `./eve-multibox --uninstall` entfernt Startmenü-Eintrag, Icon und Autostart; danach die Programmdatei und
+  `~/.config/eve-multibox` löschen.
+
+EVE Multibox installiert nichts weiter und ändert am System nur den optionalen Autostart-Eintrag
+(Windows: Registry `HKCU\…\Run`, Linux: `~/.config/autostart`).
+
 ## Regelkonformität
 
 CCP verbietet Input-Broadcasting und -Multiplexing: Eine Eingabe darf nicht auf mehrere Clients wirken.
@@ -74,6 +85,23 @@ EVE Multibox **sendet niemals Tastatur- oder Mauseingaben an EVE**. Es nutzt nur
 - Globale Hotkeys (Windows: `RegisterHotKey`; Linux: `XGrabKey`): Ein Tastendruck löst genau eine Fensteraktion aus
 
 Damit bleibt jeder Tastendruck im Spiel beim aktiven Client. Die Verantwortung für die Einhaltung der aktuellen EULA bleibt trotzdem beim Spieler – im Zweifel CCP fragen.
+
+## Code-Signatur
+
+Kostenlose Code-Signatur durch [SignPath.io](https://about.signpath.io/), Zertifikat der
+[SignPath Foundation](https://signpath.org/).
+*Status: Antrag läuft – bis zur Freigabe sind Releases unsigniert.*
+
+- **Committer und Reviewer:** [LeggaSchnegge (Zer0C0ol1337)](https://github.com/Zer0C0ol1337)
+- **Freigabe (Approver):** [LeggaSchnegge (Zer0C0ol1337)](https://github.com/Zer0C0ol1337)
+
+Signiert werden nur Programme, die GitHub Actions aus diesem Repository baut; jede Signatur wird von Hand freigegeben.
+Einrichtung: [docs/SIGNING.md](docs/SIGNING.md).
+
+### Datenschutz
+
+Dieses Programm überträgt keine Informationen an andere Systeme im Netzwerk, außer der Nutzer verlangt es ausdrücklich.
+EVE Multibox hat überhaupt keine Netzwerkfunktionen: Konfiguration und Protokoll werden nur lokal gespeichert.
 
 ## Entwicklung unter WSL + VS Code
 
@@ -120,8 +148,9 @@ Daneben liegt `eve-multibox.log` (Startprotokoll, Absturzdetails).
 1. Version in `Cargo.toml` erhöhen, `CHANGELOG.md` sowie `README.md` (Englisch) und `README.de.md` anpassen, committen und pushen.
 2. Auf GitHub **Releases → Draft a new release**, Tag `vX.Y.Z` (gleich der Version in `Cargo.toml`) neu anlegen,
    Text einfügen, **Publish release**.
-3. GitHub Actions (`.github/workflows/release.yml`) baut Windows-ZIP und Linux-Paket und hängt sie nach einigen
-   Minuten an das Release. Passt der Tag nicht zur Version, bricht der Ablauf mit einer klaren Meldung ab.
+3. GitHub Actions (`.github/workflows/release.yml`) baut Windows-ZIP (MSVC, signiert sobald SignPath eingerichtet ist)
+   und Linux-Paket und hängt sie nach einigen Minuten an das Release. Passt der Tag nicht zur Version, bricht der
+   Ablauf mit einer klaren Meldung ab.
 
 ## Projektaufbau
 

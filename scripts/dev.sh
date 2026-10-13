@@ -8,14 +8,18 @@
 #   scripts/dev.sh run          – Windows-Debug-Build, nach C:\Users\<du>\EveMultibox kopieren und starten
 #   scripts/dev.sh release      – Windows-Release: dist/eve-multibox-<version>-windows-x64.zip + C:\Users\<du>\EveMultibox
 #   scripts/dev.sh windows      – nur Windows-ZIP nach dist/ (ohne Kopie nach C:, z. B. für GitHub Actions)
+#   scripts/dev.sh package-windows – ZIP aus vorhandener dist/eve-multibox.exe (nach dem Signieren)
 #   scripts/dev.sh linux        – Linux-Release-Paket nach dist/eve-multibox-<version>-linux-x86_64.tar.gz
 #   scripts/dev.sh demo-linux   – Linux-Version mit simulierten EVE-Clients starten (WSLg oder Linux-Desktop)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-WIN_TARGET=x86_64-pc-windows-gnu
+# Windows-Ziel: GNU (MinGW, WSL) – in GitHub Actions per WIN_TARGET=x86_64-pc-windows-msvc überschreibbar.
+WIN_TARGET=${WIN_TARGET:-x86_64-pc-windows-gnu}
 LINUX_TARGET=x86_64-unknown-linux-gnu
 EXE=eve-multibox.exe
+# Python heißt unter Windows (Git Bash) oft nur „python“.
+PYTHON=$(command -v python3 || command -v python)
 VERSION=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
 
 # Windows-Benutzername ermitteln, um auf das Windows-Laufwerk zu kopieren.
@@ -156,16 +160,21 @@ case "${1:-}" in
         ;;
     release)
         build_and_copy release
-        "$0" windows
+        bash scripts/dev.sh windows
         ;;
     windows)
         cargo build --release --target "$WIN_TARGET"
         mkdir -p dist
         cp "target/$WIN_TARGET/release/$EXE" dist/
-        # Release-ZIP mit .exe und Kurzanleitung (Windows-Zeilenenden); python3 statt „zip“, das in WSL oft fehlt.
+        bash scripts/dev.sh package-windows
+        ;;
+    package-windows)
+        # ZIP aus dist/eve-multibox.exe + Kurzanleitung (Windows-Zeilenenden) – getrennt vom Bauen,
+        # damit GitHub Actions die .exe vorher signieren lassen kann. python statt „zip“ (fehlt in WSL oft).
         windows_readme | sed 's/$/\r/' > dist/LIESMICH-README.txt
         zipname="dist/eve-multibox-$VERSION-windows-x64.zip"
-        python3 - "$zipname" "dist/$EXE" dist/LIESMICH-README.txt <<'PY'
+        rm -f "$zipname"
+        "$PYTHON" - "$zipname" "dist/$EXE" dist/LIESMICH-README.txt <<'PY'
 import os, sys, zipfile
 with zipfile.ZipFile(sys.argv[1], "w", zipfile.ZIP_DEFLATED) as z:
     for f in sys.argv[2:]:
@@ -194,7 +203,7 @@ PY
         "target/$LINUX_TARGET/debug/eve-multibox"
         ;;
     *)
-        sed -n '2,13p' "$0"
+        sed -n '2,14p' "$0"
         exit 1
         ;;
 esac

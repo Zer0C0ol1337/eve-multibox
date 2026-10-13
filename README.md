@@ -5,7 +5,7 @@
 Free multiboxing tool for EVE Online on **Windows 11 and Linux** – written in Rust, without input broadcasting.
 One codebase, two programs: `eve-multibox.exe` (Windows) and `eve-multibox` (Linux, X11/XWayland).
 
-**Version 0.4.0** · [Download (Releases)](https://github.com/Zer0C0ol1337/eve-multibox/releases/latest) ·
+**Version 0.4.1** · [Download (Releases)](https://github.com/Zer0C0ol1337/eve-multibox/releases/latest) ·
 [Changelog](CHANGELOG.md) · MIT License
 
 © 2026 LeggaSchnegge · Questions or anything odd? → @[3THEL] LeggaSchnegge
@@ -16,13 +16,14 @@ One codebase, two programs: `eve-multibox.exe` (Windows) and `eve-multibox` (Lin
 
 | System | File | Start |
 |---|---|---|
-| **Windows 10/11** | `eve-multibox-0.4.0-windows-x64.zip` | unzip, run `eve-multibox.exe` |
-| **Linux** | `eve-multibox-0.4.0-linux-x86_64.tar.gz` | unpack, run `./eve-multibox --install`, then start it from your app menu |
+| **Windows 10/11** | `eve-multibox-0.4.1-windows-x64.zip` | unzip, run `eve-multibox.exe` |
+| **Linux** | `eve-multibox-0.4.1-linux-x86_64.tar.gz` | unpack, run `./eve-multibox --install`, then start it from your app menu |
 
 EVE has to run in window mode ("Window" or "Fixed window"). Linux details below.
 
-**Antivirus:** A single scanner (SecureAge) reported a false positive on VirusTotal (1/68) – common for new,
-unsigned programs. The complete source code is public here; if you like, build the `.exe` yourself.
+**Antivirus:** New, unsigned programs are occasionally flagged by single scanners (false positive). The release
+`.exe` is built by GitHub Actions directly from this source code with the Microsoft compiler, and free code signing
+via the SignPath Foundation is being set up (see [Code signing policy](#code-signing-policy)).
 
 ## Features
 
@@ -46,7 +47,7 @@ GNOME – EVE itself runs there as an XWayland window). Same feature set as on W
 (XComposite), hotkeys, throttling, memory tools, dashboard, tray, autostart, all languages.
 
 ```bash
-tar xzf eve-multibox-0.4.0-linux-x86_64.tar.gz && cd eve-multibox-0.4.0-linux-x86_64
+tar xzf eve-multibox-0.4.1-linux-x86_64.tar.gz && cd eve-multibox-0.4.1-linux-x86_64
 ./eve-multibox --install                       # menu entry + icon (no sudo), --uninstall removes everything
 sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: raise/restore priority + page out memory
 ```
@@ -63,6 +64,16 @@ sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: raise/restore priorit
 - Configuration: `~/.config/eve-multibox/config.json`, log file next to it. Autostart: `~/.config/autostart/`.
 - Commands: `--install`, `--uninstall`, `--minimized`, `--version`, `--help`.
 
+## Uninstall
+
+- **Windows:** disable "Start with Windows" in the settings (if enabled), close the program, delete the folder with
+  `eve-multibox.exe` and `%APPDATA%\EveMultibox` (configuration and log).
+- **Linux:** `./eve-multibox --uninstall` removes the menu entry, icon and autostart; then delete the program file
+  and `~/.config/eve-multibox`.
+
+EVE Multibox installs nothing else and changes nothing in the system apart from the optional autostart entry
+(Windows: registry `HKCU\…\Run`, Linux: `~/.config/autostart`).
+
 ## Rules compliance
 
 CCP forbids input broadcasting and multiplexing: a single input must not affect more than one client.
@@ -76,6 +87,24 @@ EVE Multibox **never sends keyboard or mouse input to EVE**. It only uses operat
 
 Every keypress in the game stays with the active client. Responsibility for following the current EULA still lies
 with the player – if in doubt, ask CCP.
+
+## Code signing policy
+
+Free code signing provided by [SignPath.io](https://about.signpath.io/), certificate by
+[SignPath Foundation](https://signpath.org/).
+*Status: application in progress – until approval, releases are unsigned.*
+
+- **Committers and reviewers:** [LeggaSchnegge (Zer0C0ol1337)](https://github.com/Zer0C0ol1337)
+- **Approvers:** [LeggaSchnegge (Zer0C0ol1337)](https://github.com/Zer0C0ol1337)
+
+Only binaries built by GitHub Actions from this repository are signed; every signing request is approved manually.
+Setup details: [docs/SIGNING.md](docs/SIGNING.md).
+
+### Privacy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user
+or the person installing or operating it. EVE Multibox has no network functions at all: it stores its configuration
+and log locally only.
 
 ## Development (WSL + VS Code)
 
@@ -122,8 +151,9 @@ On Windows builds, `build.rs` embeds the icon and version info (copyright LeggaS
 1. Bump the version in `Cargo.toml`, update `CHANGELOG.md`, `README.md` and `README.de.md`, commit and push.
 2. On GitHub: **Releases → Draft a new release**, create a new tag `vX.Y.Z` (same as the version in `Cargo.toml`),
    paste the notes, **Publish release**.
-3. GitHub Actions (`.github/workflows/release.yml`) builds the Windows ZIP and the Linux package and attaches them to
-   the release after a few minutes. If the tag doesn't match the version, the run stops with a clear message.
+3. GitHub Actions (`.github/workflows/release.yml`) builds the Windows ZIP (MSVC, signed once SignPath is set up)
+   and the Linux package and attaches them to the release after a few minutes. If the tag doesn't match the version,
+   the run stops with a clear message.
 
 ## Project layout
 
