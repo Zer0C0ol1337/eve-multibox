@@ -1,164 +1,171 @@
 # EVE Multibox
 
-Kostenloses Multibox-Werkzeug für EVE Online unter **Windows 11 und Linux** – in Rust, ohne Input-Broadcasting.
-Ein Quellcode, zwei Programme: `eve-multibox.exe` (Windows) und `eve-multibox` (Linux, X11/XWayland).
+🇬🇧 **English** · 🇩🇪 [Deutsch](README.de.md)
+
+Free multiboxing tool for EVE Online on **Windows 11 and Linux** – written in Rust, without input broadcasting.
+One codebase, two programs: `eve-multibox.exe` (Windows) and `eve-multibox` (Linux, X11/XWayland).
 
 **Version 0.4.0** · [Download (Releases)](https://github.com/Zer0C0ol1337/eve-multibox/releases/latest) ·
-[Changelog](CHANGELOG.md) · MIT-Lizenz
+[Changelog](CHANGELOG.md) · MIT License
 
-© 2026 LeggaSchnegge · Fragen oder etwas Seltsames? → @[3THEL] LeggaSchnegge
+© 2026 LeggaSchnegge · Questions or anything odd? → @[3THEL] LeggaSchnegge
 
-![EVE Multibox – Dashboard und Live-Vorschau](docs/screenshot.png)
+![EVE Multibox – dashboard and live previews](docs/screenshot.png)
 
-## Download & Start
+## Download & start
 
-| System | Datei | Start |
+| System | File | Start |
 |---|---|---|
-| **Windows 10/11** | `eve-multibox-0.4.0-windows-x64.zip` | entpacken, `eve-multibox.exe` starten |
-| **Linux** | `eve-multibox-0.4.0-linux-x86_64.tar.gz` | entpacken, `./eve-multibox --install`, dann übers Startmenü |
+| **Windows 10/11** | `eve-multibox-0.4.0-windows-x64.zip` | unzip, run `eve-multibox.exe` |
+| **Linux** | `eve-multibox-0.4.0-linux-x86_64.tar.gz` | unpack, run `./eve-multibox --install`, then start it from your app menu |
 
-EVE muss im Fenstermodus laufen („Fenster“ oder „Fenster (fest)“). Einzelheiten zu Linux weiter unten.
+EVE has to run in window mode ("Window" or "Fixed window"). Linux details below.
 
-**Virenscanner:** Ein einzelner Scanner (SecureAge) meldete bei VirusTotal einen Fehlalarm (1/68) – typisch für
-neue, unsignierte Programme. Der komplette Quellcode liegt hier offen; wer mag, baut die `.exe` selbst.
+**Antivirus:** A single scanner (SecureAge) reported a false positive on VirusTotal (1/68) – common for new,
+unsigned programs. The complete source code is public here; if you like, build the `.exe` yourself.
 
-## Funktionen
+## Features
 
-| Bereich | Funktionen |
+| Area | Features |
 |---|---|
-| **Layouts** | Profile mit Hauptfenster- und beliebig vielen Nebenfenster-Plätzen, mehrere Monitore, Monitor-Vorlagen (Haupt + Raster, Haupt + Seitenleiste), „aktuelle Positionen übernehmen“, rahmenlos, automatisch anwenden beim Login, Hotkey zum Tauschen |
-| **Live-Vorschau** | Live-Bilder aller Clients (wie EVE-O Preview; Windows: DWM, Linux: XComposite), Linksklick = fokussieren, Rechtsklick = ins Hauptfenster tauschen, Ziehen = verschieben (Position je Charakter gespeichert), aktiver Client hervorgehoben |
-| **Hotkeys** | Nächster/vorheriger Client, Tauschen, Layout anwenden, Vorschau ein/aus, ein Hotkey pro Charakter – standardmäßig nur aktiv, wenn EVE vorne ist |
-| **CPU** | Priorität und Kern-Affinität pro Charakter, Hintergrund-Clients drosseln (Priorität + eigene Kerne), inaktive Clients minimieren |
-| **Speicher** | RAM pro Client (Working Set + Privat), Warnungen pro Client und für das System, Arbeitsspeicher freigeben (manuell oder automatisch für Hintergrund-Clients) |
-| **Dashboard** | System-CPU/RAM, EVE-Summen, Tabelle aller Clients mit CPU-Verlauf, Status und Schnellaktionen |
-| **Tray & Autostart** | Symbol im Infobereich mit Menü, X blendet ins Tray aus, Start mit Windows (direkt im Tray), Zweitstart holt das vorhandene Dashboard nach vorne |
-| **Sprachen** | Deutsch, English, Français, Русский, Español, 简体中文 – automatisch nach Systemsprache oder fest wählbar (Chinesisch nutzt eine Systemschrift, z. B. Microsoft YaHei bzw. Noto CJK) |
-| **Hotkeys aufnehmen** | Knopf „Aufnehmen“ neben jedem Hotkey-Feld – einfach die Kombination drücken |
-| **Design** | Eigene Titelleiste, dunkles EVE-Design mit orangem Akzent, Vorschau-Titel mit Markierung für aktiven Client und Hauptfenster |
+| **Layouts** | Profiles with a main slot and any number of secondary slots, multiple monitors, monitor presets (main + grid, main + sidebar), "capture current positions", borderless, apply automatically on login, hotkey to swap |
+| **Live previews** | Live images of all clients (like EVE-O Preview; Windows: DWM, Linux: XComposite), left click = focus, right click = swap into main window, drag = move (position saved per character), active client highlighted |
+| **Hotkeys** | Next/previous client, swap, apply layout, previews on/off, one hotkey per character – by default only active while EVE is in front |
+| **CPU** | Priority and core affinity per character, throttle background clients (priority + dedicated cores), minimize inactive clients |
+| **Memory** | RAM per client (working set + private), warnings per client and for the system, free memory (manually or automatically for background clients) |
+| **Dashboard** | System CPU/RAM, EVE totals, table of all clients with CPU history, status and quick actions |
+| **Tray & autostart** | System tray icon with menu, X hides to the tray, start with Windows (straight to the tray), a second start brings the running dashboard to the front |
+| **Languages** | Deutsch, English, Français, Русский, Español, 简体中文 – automatic from the system language or fixed (Chinese uses a system font, e.g. Microsoft YaHei or Noto CJK) |
+| **Hotkey recording** | "Record" button next to every hotkey field – just press the combination |
+| **Design** | Custom title bar, dark EVE look with orange accents, preview titles marking the active client and the main window |
 
 ## Linux
 
-Läuft mit EVE über Steam/Proton oder Lutris auf **X11** und auf **Wayland mit XWayland** (Standard bei KDE Plasma und
-GNOME – EVE läuft dort selbst als XWayland-Fenster). Funktionsumfang wie unter Windows: Layouts, Live-Vorschau
-(XComposite), Hotkeys, Drosselung, Speicher-Werkzeuge, Dashboard, Tray, Autostart, alle Sprachen.
+Works with EVE via Steam/Proton or Lutris on **X11** and on **Wayland with XWayland** (default on KDE Plasma and
+GNOME – EVE itself runs there as an XWayland window). Same feature set as on Windows: layouts, live previews
+(XComposite), hotkeys, throttling, memory tools, dashboard, tray, autostart, all languages.
 
 ```bash
 tar xzf eve-multibox-0.4.0-linux-x86_64.tar.gz && cd eve-multibox-0.4.0-linux-x86_64
-./eve-multibox --install                       # Startmenü-Eintrag + Icon (ohne sudo), --uninstall entfernt alles
-sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: Priorität erhöhen/zurücksetzen + Speicher auslagern
+./eve-multibox --install                       # menu entry + icon (no sudo), --uninstall removes everything
+sudo setcap cap_sys_nice+ep ./eve-multibox     # optional: raise/restore priority + page out memory
 ```
 
-- **Voraussetzung:** glibc ≥ 2.30 (Ubuntu 20.04+, Debian 11+, Fedora, Arch, Mint 20+, SteamOS im Desktop-Modus).
-- **Rechte:** Ohne `cap_sys_nice` kann Linux die Priorität nur *senken* – Drosseln geht, Zurücksetzen nicht vollständig.
-  Der Leistung-Tab zeigt den Status und den passenden `setcap`-Befehl (mit Kopierknopf). Nach jedem Update erneut setzen.
-- **Speicher freigeben** nutzt `process_madvise(MADV_PAGEOUT)` (Kernel ≥ 5.10) und lagert Seiten in Swap/zram aus.
-- **Tray:** über StatusNotifierItem – KDE, Xfce, Cinnamon, MATE, LXQt; GNOME braucht die Erweiterung „AppIndicator“.
-  Ohne Tray schließt X das Programm wirklich.
-- **Reines Wayland** (ohne XWayland) erlaubt Fremdprogrammen weder Fenster zu verschieben noch Vorschaubilder – die
-  Einstellungen zeigen dann einen Hinweis.
-- Konfiguration: `~/.config/eve-multibox/config.json`, Protokoll daneben. Autostart: `~/.config/autostart/`.
-- Befehle: `--install`, `--uninstall`, `--minimized`, `--version`, `--help`.
+- **Requirement:** glibc ≥ 2.30 (Ubuntu 20.04+, Debian 11+, Fedora, Arch, Mint 20+, SteamOS in desktop mode).
+- **Permissions:** Without `cap_sys_nice`, Linux only allows *lowering* the priority – throttling works, restoring
+  doesn't fully. The Performance tab shows the status and the matching `setcap` command (with a copy button).
+  Set it again after every update.
+- **Free memory** uses `process_madvise(MADV_PAGEOUT)` (kernel ≥ 5.10) and pages memory out to swap/zram.
+- **Tray:** via StatusNotifierItem – KDE, Xfce, Cinnamon, MATE, LXQt; GNOME needs the "AppIndicator" extension.
+  Without a tray, X really closes the program.
+- **Pure Wayland** (without XWayland) doesn't let other programs move windows or capture previews – the settings
+  then show a note.
+- Configuration: `~/.config/eve-multibox/config.json`, log file next to it. Autostart: `~/.config/autostart/`.
+- Commands: `--install`, `--uninstall`, `--minimized`, `--version`, `--help`.
 
-## Regelkonformität
+## Rules compliance
 
-CCP verbietet Input-Broadcasting und -Multiplexing: Eine Eingabe darf nicht auf mehrere Clients wirken.
-EVE Multibox **sendet niemals Tastatur- oder Mauseingaben an EVE**. Es nutzt nur Windows-Funktionen:
+CCP forbids input broadcasting and multiplexing: a single input must not affect more than one client.
+EVE Multibox **never sends keyboard or mouse input to EVE**. It only uses operating system functions:
 
-- Fenster verschieben/vergrößern (`SetWindowPos`), fokussieren (`SetForegroundWindow`), minimieren
-- Vorschaubilder über den Desktop Window Manager (`DwmRegisterThumbnail`) – dieselbe Technik wie EVE-O Preview
-- Prozess-Priorität und Kern-Affinität, Arbeitsspeicher freigeben (`EmptyWorkingSet`)
-- Globale Hotkeys (`RegisterHotKey`): Ein Tastendruck löst genau eine Fensteraktion aus
+- Move/resize, focus and minimize windows (Windows: `SetWindowPos`, `SetForegroundWindow`; Linux: EWMH)
+- Preview images like EVE-O Preview (Windows: `DwmRegisterThumbnail`; Linux: XComposite)
+- Process priority and core affinity, freeing memory (Windows: `EmptyWorkingSet`; Linux: `nice`,
+  `sched_setaffinity`, `process_madvise`)
+- Global hotkeys (Windows: `RegisterHotKey`; Linux: `XGrabKey`): one keypress triggers exactly one window action
 
-Damit bleibt jeder Tastendruck im Spiel beim aktiven Client. Die Verantwortung für die Einhaltung der aktuellen EULA bleibt trotzdem beim Spieler – im Zweifel CCP fragen.
+Every keypress in the game stays with the active client. Responsibility for following the current EULA still lies
+with the player – if in doubt, ask CCP.
 
-## Entwicklung unter WSL + VS Code
+## Development (WSL + VS Code)
 
-Gebaut wird in WSL als Cross-Compile direkt zu einer Windows-`.exe` (Ziel `x86_64-pc-windows-gnu`).
+Builds run in WSL and cross-compile straight to a Windows `.exe` (target `x86_64-pc-windows-gnu`).
 
 ```bash
-# einmalig: Windows-Target + MinGW-Linker installieren
+# once: Windows target + MinGW linker
 scripts/dev.sh setup
 
-# Unit-Tests der Kernlogik (laufen nativ unter Linux)
-scripts/dev.sh test        # oder: cargo t
+# unit tests of the core logic (run natively on Linux)
+scripts/dev.sh test        # or: cargo t
 
-# Debug-Build, nach C:\Users\<du>\EveMultibox kopieren und starten
+# debug build, copy to C:\Users\<you>\EveMultibox and start
 scripts/dev.sh run
 
-# Release-Build (klein, ohne Konsolenfenster) → dist/ und C:\Users\<du>\EveMultibox
+# release build (small, no console window) → dist/…-windows-x64.zip and C:\Users\<you>\EveMultibox
 scripts/dev.sh release
 
-# Tests + Clippy für beide Backends (Windows wird unter Linux typgeprüft)
+# tests + clippy for both backends (the Windows backend is type-checked on Linux)
 scripts/dev.sh check
 
-# Linux: einmalig zig + cargo-zigbuild, dann Paket bauen → dist/eve-multibox-<version>-linux-x86_64.tar.gz
+# Linux: once zig + cargo-zigbuild, then build the package → dist/eve-multibox-<version>-linux-x86_64.tar.gz
 scripts/dev.sh setup-linux
 scripts/dev.sh linux
 
-# Linux-Version mit simulierten EVE-Clients ausprobieren (WSLg unter Windows 11 reicht)
+# try the Linux version with simulated EVE clients (WSLg on Windows 11 is enough)
 scripts/dev.sh demo-linux
 ```
 
-- `.cargo/config.toml` setzt Windows als Standardziel – `cargo build` liefert also immer die `.exe`.
-- `.vscode/settings.json` stellt rust-analyzer auf das Windows-Ziel ein. Empfohlene Erweiterungen: *rust-analyzer*, *WSL*.
-- `cargo ck` prüft den Code schnell ohne Windows-Linker.
-- Der Debug-Build öffnet zusätzlich ein Konsolenfenster (praktisch für Panics), der Release-Build nicht.
+- `.cargo/config.toml` makes Windows the default target – plain `cargo build` always produces the `.exe`.
+- `.vscode/settings.json` points rust-analyzer at the Windows target. Recommended extensions: *rust-analyzer*, *WSL*.
+- `cargo ck` quickly type-checks without the Windows linker.
+- The debug build additionally opens a console window (handy for panics), the release build doesn't.
 
-Unter Windows liegt die Konfiguration unter `%APPDATA%\EveMultibox\config.json` und wird bei jeder Änderung automatisch gespeichert.
-Daneben liegt `eve-multibox.log` (Startprotokoll, Absturzdetails).
+On Windows the configuration lives in `%APPDATA%\EveMultibox\config.json` and is saved automatically on every change.
+Next to it is `eve-multibox.log` (startup log, crash details).
 
-`build.rs` bettet beim Windows-Build Icon und Versionsinfos (Copyright LeggaSchnegge) per `windres` in die `.exe` ein.
+On Windows builds, `build.rs` embeds the icon and version info (copyright LeggaSchnegge) into the `.exe` via `windres`.
 
-**Neue Sprache hinzufügen:** in `src/i18n.rs` eine Spalte ergänzen – `cargo t` meldet jeden fehlenden Text.
+**Adding a language:** add a column in `src/i18n.rs` – `cargo t` reports every missing text.
 
-## Release veröffentlichen
+## Publishing a release
 
-1. Version in `Cargo.toml` erhöhen, `CHANGELOG.md` und diese README anpassen, committen und pushen.
-2. Auf GitHub **Releases → Draft a new release**, Tag `vX.Y.Z` (gleich der Version in `Cargo.toml`) neu anlegen,
-   Text einfügen, **Publish release**.
-3. GitHub Actions (`.github/workflows/release.yml`) baut Windows-ZIP und Linux-Paket und hängt sie nach einigen
-   Minuten an das Release. Passt der Tag nicht zur Version, bricht der Ablauf mit einer klaren Meldung ab.
+1. Bump the version in `Cargo.toml`, update `CHANGELOG.md`, `README.md` and `README.de.md`, commit and push.
+2. On GitHub: **Releases → Draft a new release**, create a new tag `vX.Y.Z` (same as the version in `Cargo.toml`),
+   paste the notes, **Publish release**.
+3. GitHub Actions (`.github/workflows/release.yml`) builds the Windows ZIP and the Linux package and attaches them to
+   the release after a few minutes. If the tag doesn't match the version, the run stops with a clear message.
 
-## Projektaufbau
+## Project layout
 
 ```
 src/
-  lib.rs          Bibliothek „evemb“: plattformunabhängige Logik (testbar unter Linux)
-  engine_api.rs   gemeinsame Typen zwischen Oberfläche und Engine (Befehle, Ereignisse, Snapshot)
-  platform.rs     Fassade: Start, Sprache, Einzelinstanz, Monitore, Autostart – je Betriebssystem
-  config.rs       Konfiguration, Laden/Speichern, Kern-Masken
-  hotkey.rs       Parser „Ctrl+Shift+F1“ → Modifier + Virtual-Key
-  i18n.rs         Texte in 6 Sprachen (Tests prüfen Vollständigkeit und Platzhalter)
-  icon.rs         App-Icon per Code (Fenster, Tray, .exe)
-  layout.rs       Charakter aus Titel, Reihenfolge, Platzvergabe, Vorlagen, Einrasten
-  main.rs         Start: DPI, Sprache, Einzelinstanz, Dashboard
-  diag.rs         Startprotokoll und Absturzbericht
-  engine.rs       Engine-Thread: Clients, Hotkeys, Drosselung, Layouts, Snapshot
-  tray.rs         Symbol im Infobereich mit Menü
-  preview.rs      Vorschaufenster mit DWM-Thumbnails, Ziehen, Größe ändern, Andocken
-  procstat.rs     CPU-Zeit, Speicher, Priorität, Affinität, Speicher freigeben
-  win.rs          Fenster finden/fokussieren/verschieben, Monitore
-  ui/             egui-Oberfläche (Dashboard, Layouts, Vorschau, Leistung, Hotkeys, Einstellungen)
-  linux/          Linux-Backend: engine, x11 (EWMH), preview (XComposite/XRender), keys (XGrabKey),
-                  procstat (/proc, nice, sched_setaffinity, process_madvise), tray (StatusNotifierItem),
-                  signal (Tray/Signale → Engine), platform (XDG, Autostart, --install)
+  lib.rs          library "evemb": platform-independent logic (testable on Linux)
+  engine_api.rs   shared types between UI and engine (commands, events, snapshot)
+  platform.rs     facade: startup, language, single instance, monitors, autostart – per OS
+  config.rs       configuration, load/save, core masks
+  hotkey.rs       parser "Ctrl+Shift+F1" → modifiers + virtual key
+  i18n.rs         texts in 6 languages (tests check completeness and placeholders)
+  icon.rs         app icon drawn in code (window, tray, .exe)
+  layout.rs       character from title, ordering, slot assignment, presets, snapping
+  main.rs         startup: DPI, language, single instance, dashboard
+  diag.rs         startup log and crash report
+  engine.rs       engine thread: clients, hotkeys, throttling, layouts, snapshot
+  tray.rs         system tray icon with menu
+  preview.rs      preview windows with DWM thumbnails, drag, resize, snapping
+  procstat.rs     CPU time, memory, priority, affinity, freeing memory
+  win.rs          find/focus/move windows, monitors
+  ui/             egui interface (dashboard, layouts, previews, performance, hotkeys, settings, theme)
+  linux/          Linux backend: engine, x11 (EWMH), preview (XComposite/XRender), label (title rendering),
+                  keys (XGrabKey), procstat (/proc, nice, sched_setaffinity, process_madvise),
+                  tray (StatusNotifierItem), signal (tray/signals → engine), platform (XDG, autostart, --install)
 examples/
-  fake_eve.rs     simulierte EVE-Clients für Tests unter Linux/WSLg
+  fake_eve.rs     simulated EVE clients for testing on Linux/WSLg
 ```
 
-`build.rs` wählt das Backend: Windows → `win_backend` (engine.rs, preview.rs, tray.rs, …), Linux → `x11_backend`
-(`src/linux/`). Mit `EVEMB_CHECK_WINDOWS=1` wird das Windows-Backend auch unter Linux typgeprüft.
+`build.rs` selects the backend: Windows → `win_backend` (engine.rs, preview.rs, tray.rs, …), Linux → `x11_backend`
+(`src/linux/`). With `EVEMB_CHECK_WINDOWS=1` the Windows backend is type-checked on Linux as well.
 
-Die Engine läuft in einem eigenen Thread (Windows: eigene Win32-Nachrichtenschleife, Linux: poll auf X11-Verbindung und Weck-eventfd). Die Oberfläche schickt ihr Befehle
-über einen Kanal und liest den Zustand aus einem geteilten Snapshot. Beim Beenden setzt die Engine Priorität und
-Affinität aller Clients auf die Ausgangswerte zurück.
+The engine runs in its own thread (Windows: its own Win32 message loop, Linux: poll on the X11 connection and a
+wake-up eventfd). The UI sends it commands over a channel and reads the state from a shared snapshot. On exit the
+engine restores the priority and affinity of all clients.
 
-## Gut zu wissen
+## Good to know
 
-- **EVE im Fenstermodus starten** („Fenster“ oder „Fenster (fest)“). „Fenster (fest)“ ist bereits rahmenlos.
-- **Adminrechte:** Läuft EVE als Administrator, darf EVE Multibox Priorität/Affinität nicht ändern – das Dashboard zeigt dann „Keine Rechte“. Lösung: beide gleich starten.
-- **Minimierte Clients** liefern kein Vorschaubild (schwarz) – Windows-Einschränkung.
-- **Speicher freigeben** verschiebt Seiten in die Standby-Liste. Braucht der Client sie wieder, lädt er nach (kurzes Ruckeln). Gut für Hintergrund-Clients, nicht für den aktiven im Kampf.
-- **Mehr als 64 logische Kerne** (Prozessorgruppen) werden nicht unterstützt.
-- **Hotkeys** werden von Windows abgefangen und erreichen EVE nicht – Kombinationen wählen, die im Spiel frei sind.
+- **Start EVE in window mode** ("Window" or "Fixed window"). "Fixed window" is already borderless.
+- **Admin rights:** If EVE runs as administrator, EVE Multibox may not change priority/affinity – the dashboard then
+  shows "No rights". Fix: start both the same way.
+- **Minimized clients** deliver no preview image (black) – a Windows limitation.
+- **Freeing memory** moves pages to the standby list. If the client needs them again it reloads them (short stutter).
+  Good for background clients, not for the active one in combat.
+- **More than 64 logical cores** (processor groups) are not supported.
+- **Hotkeys** are captured by the system and don't reach EVE – pick combinations that are free in the game.
