@@ -1,42 +1,43 @@
 # Changelog
 
-Alle nennenswerten Änderungen an EVE Multibox. Versionsnummern nach [SemVer](https://semver.org/lang/de/);
-die Version steht einheitlich in `Cargo.toml`, im Git-Tag (`vX.Y.Z`), im Release und in der Programmanzeige.
+All notable changes to EVE Multibox. Version numbers follow [SemVer](https://semver.org/);
+the version is kept identical in `Cargo.toml`, the Git tag (`vX.Y.Z`), the GitHub release and the in-app display.
 
 ## [0.4.0] – 2026-10-13
 
-### Neu
-- **Linux-Version** aus demselben Quellcode: X11 und Wayland mit XWayland (KDE Plasma, GNOME, Xfce, Cinnamon,
-  Mint, Steam Deck im Desktop-Modus), EVE über Steam/Proton oder Lutris.
-  - Live-Vorschau per XComposite/XRender, Hotkeys per XGrabKey, Layouts über EWMH.
-  - CPU-Werkzeuge über `nice` und `sched_setaffinity`, Speicher freigeben über `process_madvise`.
-  - Tray-Symbol über StatusNotifierItem, Autostart über `~/.config/autostart`.
-  - `--install` / `--uninstall` (Startmenü-Eintrag und Icon ohne sudo), `--minimized`, `--version`, `--help`.
-  - Läuft ab glibc 2.30 (Ubuntu 20.04+, Debian 11+, Mint 20+, Fedora, Arch, SteamOS).
-- **Neues Design:** eigene Titelleiste statt Systemrahmen, dunkles EVE-Design mit Orange als Akzent,
-  Kennzahlen-Karten, Tabs mit Unterstrich, farbige Status-Plaketten.
-- **Neue Vorschau-Titelzeilen:** geglättete Schrift, Akzentpunkt und -rahmen für den aktiven Client,
-  Raute für das Hauptfenster.
-- Verständliche Meldung mit Installationsbefehl, wenn unter Linux System-Bibliotheken fehlen.
+### Added
+- **Linux version** built from the same source code: X11 and Wayland with XWayland (KDE Plasma, GNOME, Xfce,
+  Cinnamon, Mint, Steam Deck in desktop mode), EVE via Steam/Proton or Lutris.
+  - Live previews via XComposite/XRender, hotkeys via XGrabKey, layouts via EWMH.
+  - CPU tools via `nice` and `sched_setaffinity`, freeing memory via `process_madvise`.
+  - Tray icon via StatusNotifierItem, autostart via `~/.config/autostart`.
+  - `--install` / `--uninstall` (menu entry and icon without sudo), `--minimized`, `--version`, `--help`.
+  - Runs on glibc 2.30 and newer (Ubuntu 20.04+, Debian 11+, Mint 20+, Fedora, Arch, SteamOS).
+- **New design:** custom title bar instead of the system frame, dark EVE look with orange accents,
+  stat cards, underlined tabs, colored status badges.
+- **New preview title bars:** smooth fonts, accent dot and frame for the active client,
+  diamond marker for the main window.
+- Clear message with the install command when system libraries are missing on Linux.
 
-### Behoben
-- „Im Infobereich starten“ öffnete das Dashboard trotzdem.
-- Ein zweiter Programmstart leerte das Protokoll der laufenden Instanz.
-- Login-Vorschauen sprangen nach dem Verschieben an ihre alte Stelle zurück.
-- Einige Pfeil-Symbole wurden als Kästchen angezeigt.
-- Unter WSLg/Weston wurden keine Clients gefunden (Fenstermanager ohne Fensterliste).
+### Fixed
+- "Start in tray" still opened the dashboard.
+- A second program start cleared the log of the running instance.
+- Login previews jumped back to their old position after being moved.
+- Some arrow symbols were shown as boxes.
+- No clients were found under WSLg/Weston (window manager without a window list).
 
-### Intern
-- Plattform-Fassade (`platform.rs`) und gemeinsame Engine-Typen (`engine_api.rs`); Backend-Auswahl in `build.rs`.
-- `scripts/dev.sh`: neue Befehle `check`, `setup-linux`, `linux`, `demo-linux`.
-- Testwerkzeug `examples/fake_eve.rs` (simulierte EVE-Clients).
-- GitHub Actions baut beim Veröffentlichen eines Releases die Windows-ZIP und das Linux-Paket und hängt sie an;
-  vorher wird geprüft, dass der Tag zur Version in `Cargo.toml` passt.
+### Internal
+- Platform facade (`platform.rs`) and shared engine types (`engine_api.rs`); backend selection in `build.rs`.
+- `scripts/dev.sh`: new commands `check`, `setup-linux`, `linux`, `windows`, `demo-linux`.
+- Test tool `examples/fake_eve.rs` (simulated EVE clients).
+- GitHub Actions builds the Windows ZIP and the Linux package when a release is published and attaches them;
+  beforehand it checks that the tag matches the version in `Cargo.toml`.
+- README in English (`README.md`) and German (`README.de.md`).
 
-## Frühere Versionen (0.1–0.3, nur Windows)
+## Earlier versions (0.1–0.3, Windows only)
 
-- Fenster-Layouts pro Profil mit Haupt- und Nebenfenstern, Monitor-Vorlagen und „gestapeltem“ Vollbild-Layout.
-- Live-Vorschau mit DWM-Thumbnails: frei verschieb- und skalierbar, Einrasten an anderen Vorschauen.
-- Hotkeys (Zyklus, Tauschen, Layout, Vorschau, je Charakter) mit Aufnahme per Tastendruck.
-- CPU-Werkzeuge (Priorität, Kern-Affinität, Drosseln), Speicher-Werkzeuge (Überwachung, Warnungen, Freigeben).
-- Dashboard, Tray-Symbol, Autostart, sechs Sprachen (DE, EN, FR, RU, ES, ZH), Copyright-Wasserzeichen.
+- Window layouts per profile with main and secondary slots, monitor presets and a "stacked" fullscreen layout.
+- Live previews with DWM thumbnails: freely movable and resizable, snapping to other previews.
+- Hotkeys (cycle, swap, layout, previews, per character) with recording by keypress.
+- CPU tools (priority, core affinity, throttling), memory tools (monitoring, warnings, freeing).
+- Dashboard, tray icon, autostart, six languages (DE, EN, FR, RU, ES, ZH), copyright watermark.
